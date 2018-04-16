@@ -5,14 +5,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
+import vladimir.yandex.entity.Characters;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder>{
 
-    private int[] mDataset;
+    private Characters mCharacters;
 
-    public GalleryAdapter(int[] dataset){
-        mDataset = dataset;
+    public GalleryAdapter(Characters characters) {
+        mCharacters = characters;
     }
 
     @Override
@@ -23,7 +28,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.mImage.setText(String.valueOf(position));
+        Glide.with(holder.mImage.getContext())
+                .load(mCharacters.getResults().get(position).getImage())
+                .into(holder.mImage);
         holder.mImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -36,12 +43,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mDataset.length;
+        return mCharacters.getResults().size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
-        TextView mImage;
+        ImageView mImage;
         public ViewHolder(View itemView) {
             super(itemView);
             mImage = itemView.findViewById(R.id.image);
