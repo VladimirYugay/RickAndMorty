@@ -22,7 +22,7 @@ import vladimir.yandex.interfaces.ApiService;
 
 public class GalleryActivity extends AppCompatActivity {
 
-    private Characters mCharacters;
+    private List<Result> mCharacters;
     private ProgressDialog mDialog;
     private RecyclerView mRecyclerView;
     private GalleryAdapter mAdapter;
@@ -46,17 +46,13 @@ public class GalleryActivity extends AppCompatActivity {
         call.enqueue(new Callback<Characters>() {
             @Override
             public void onResponse(Call<Characters> call, Response<Characters> response) {
-                //Dismiss Dialog
                 mDialog.dismiss();
                 Response<Characters> k = response;
                 if (response.isSuccessful()) {
-                    /**
-                     * Got Successfully
-                     */
-                    mCharacters = response.body();
+                    mCharacters = response.body().getResults();
                     mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
                     mAdapter = new GalleryAdapter(mCharacters);
-                    mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                    mRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
                     mRecyclerView.setItemAnimator(new DefaultItemAnimator());
                     mRecyclerView.setAdapter(mAdapter);
                 }

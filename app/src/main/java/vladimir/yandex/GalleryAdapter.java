@@ -10,13 +10,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.List;
+
 import vladimir.yandex.entity.Characters;
+import vladimir.yandex.entity.Result;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder>{
 
-    private Characters mCharacters;
+    private List<Result> mCharacters;
 
-    public GalleryAdapter(Characters characters) {
+    public GalleryAdapter(List<Result> characters) {
         mCharacters = characters;
     }
 
@@ -29,7 +32,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Glide.with(holder.mImage.getContext())
-                .load(mCharacters.getResults().get(position).getImage())
+                .load(mCharacters.get(position).getImage())
                 .into(holder.mImage);
         holder.mImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,7 +46,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mCharacters.getResults().size();
+        return mCharacters.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
