@@ -1,12 +1,11 @@
-package vladimir.yandex;
+package vladimir.yandex.api;
 
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import vladimir.yandex.interfaces.ApiService;
 
 
-public class RetroClient {
+public class CharactersApi {
 
     private static final String ROOT_URL = "https://rickandmortyapi.com/api/";
 
@@ -17,7 +16,7 @@ public class RetroClient {
                 .build();
     }
 
-    public static ApiService getApiService() {
-        return getRetrofitInstance().create(ApiService.class);
+    public static CharactersService getApiService() {
+        return getRetrofitInstance().create(CharactersService.class);
     }
 }

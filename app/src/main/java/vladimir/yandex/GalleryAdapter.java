@@ -1,5 +1,6 @@
 package vladimir.yandex;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,18 +20,14 @@ import vladimir.yandex.entity.Result;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder>{
 
-    private List<Result> mCharacters = new ArrayList<>();
-    int counter = 0;
+    private List<Result> mCharacters;
+    private Context mContext;
 
-    public void addAll(List<Result> list){
-        mCharacters.addAll(list);
-        notifyDataSetChanged();
-        Log.d("UPDATE", String.valueOf(counter++));
+    public GalleryAdapter(Context context){
+        this.mContext = context;
+        mCharacters = new ArrayList<>();
     }
 
-    public int getItemsLoaded(){
-        return mCharacters.size();
-    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -48,20 +45,41 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), PhotoActivity.class);
                 intent.putExtra("URL", mCharacters.get(position).getImage());
-                v.getContext().startActivity(intent);
+                    v.getContext().startActivity(intent);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return mCharacters.size();
+        return mCharacters == null ? 0: mCharacters.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+
+    /*
+        Функции для  бесконечной подгрузки
+   _________________________________________________________________________________________________
+    */
+
+    public void add(Result result){
+        mCharacters.add(result);
+        notifyItemInserted(mCharacters.size() - 1);
+    }
+
+    public void addAll(List<Result> results){
+        for(Result result: results){
+            add(result);
+        }
+    }
+
+    /*
+        Вьюхолдеры
+   _________________________________________________________________________________________________
+    */
+    static class ViewHolder extends RecyclerView.ViewHolder{
 
         ImageView mImage;
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             mImage = itemView.findViewById(R.id.image);
         }

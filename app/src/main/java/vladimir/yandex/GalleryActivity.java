@@ -1,81 +1,111 @@
 package vladimir.yandex;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
+import vladimir.yandex.api.CharactersApi;
+import vladimir.yandex.api.CharactersService;
 import vladimir.yandex.entity.Characters;
 import vladimir.yandex.entity.Result;
-import vladimir.yandex.interfaces.ApiService;
-import vladimir.yandex.interfaces.OnDataSendToActivity;
+import vladimir.yandex.utils.PaginationScrollListener;
 
-public class GalleryActivity extends AppCompatActivity implements OnDataSendToActivity {
+public class GalleryActivity extends AppCompatActivity{
 
     private GalleryAdapter mAdapter;
+    GridLayoutManager mLayoutManager;
+    RecyclerView mRecycler;
+    private CharactersService mService;
+
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private int TOTAL_PAGES = 5;
+    private int currentPage = 1;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
+        mRecycler = (RecyclerView)findViewById(R.id.recycler);
+        mAdapter = new GalleryAdapter(this);
+        mLayoutManager = new GridLayoutManager(this, 2);
+        mRecycler.setAdapter(mAdapter);
+        mRecycler.setLayoutManager(mLayoutManager);
+        mRecycler.addOnScrollListener(new PaginationScrollListener(mLayoutManager){
 
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
-        mAdapter = new GalleryAdapter();
-        GridLayoutManager mLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
-        new LoadData(GalleryActivity.this).execute(1);
-    }
-
-    @Override
-    public void sendData(List<Result> results) {
-        mAdapter.addAll(results);
-    }
-
-    private static class LoadData extends AsyncTask<Integer, Void, List<Result>>{
-
-        int mPage = 0;
-        OnDataSendToActivity dataSendToActivity;
-
-        public LoadData(Activity activity){
-            mPage = 1;
-            dataSendToActivity = (OnDataSendToActivity) activity;
-        }
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected List<Result> doInBackground(Integer... integers) {
-            try{
-                ApiService api = RetroClient.getApiService();
-                List<Result> results = new ArrayList<>();
-                Call<Characters> call = api.getCharactersJSON(integers[0]);
-                Response<Characters> response = call.execute();
-                return response.body().getResults();
-            } catch (IOException e) {
-                e.printStackTrace();
+            @Override
+            protected void loadMoreItems() {
+                isLoading = true;
+                currentPage++;
+                loadNextPage();
             }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(List<Result> results) {
-            dataSendToActivity.sendData(results);
-        }
+            @Override
+            public int getTotalPageCount() {
+                return TOTAL_PAGES;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+        });
+
+        mService = CharactersApi.getApiService();
+
+        loadFirstPage();
+    }
+
+    private void loadFirstPage(){
+        callCharacters().enqueue(new Callback<Characters>() {
+            @Override
+            public void onResponse(Call<Characters> call, Response<Characters> response) {
+                isLastPage = false;
+                mAdapter.addAll(fetchResults(response));
+            }
+
+            @Override
+            public void onFailure(Call<Characters> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void loadNextPage(){
+        callCharacters().enqueue(new Callback<Characters>() {
+            @Override
+            public void onResponse(Call<Characters> call, Response<Characters> response) {
+                isLastPage = false;
+                mAdapter.addAll(fetchResults(response));
+            }
+
+            @Override
+            public void onFailure(Call<Characters> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private Call<Characters> callCharacters(){
+        return mService.getCharactersJSON(currentPage);
+    }
+
+    private List<Result> fetchResults(Response<Characters> response){
+        return response.body().getResults();
     }
 
 }
