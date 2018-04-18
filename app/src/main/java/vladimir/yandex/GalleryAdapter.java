@@ -2,6 +2,7 @@ package vladimir.yandex;
 
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import vladimir.yandex.entity.Characters;
@@ -17,10 +19,17 @@ import vladimir.yandex.entity.Result;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder>{
 
-    private List<Result> mCharacters;
+    private List<Result> mCharacters = new ArrayList<>();
+    int counter = 0;
 
-    public GalleryAdapter(List<Result> characters) {
-        mCharacters = characters;
+    public void addAll(List<Result> list){
+        mCharacters.addAll(list);
+        notifyDataSetChanged();
+        Log.d("UPDATE", String.valueOf(counter++));
+    }
+
+    public int getItemsLoaded(){
+        return mCharacters.size();
     }
 
     @Override
@@ -30,7 +39,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         Glide.with(holder.mImage.getContext())
                 .load(mCharacters.get(position).getImage())
                 .into(holder.mImage);
@@ -38,7 +47,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), PhotoActivity.class);
-                intent.putExtra("URL", "http://i.imgur.com/zuG2bGQ.jpg");
+                intent.putExtra("URL", mCharacters.get(position).getImage());
                 v.getContext().startActivity(intent);
             }
         });
@@ -49,7 +58,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         return mCharacters.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
 
         ImageView mImage;
         public ViewHolder(View itemView) {

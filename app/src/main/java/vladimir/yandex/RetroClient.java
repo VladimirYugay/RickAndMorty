@@ -8,11 +8,8 @@ import vladimir.yandex.interfaces.ApiService;
 
 public class RetroClient {
 
-    private static final String ROOT_URL = "https://rickandmortyapi.com/api/character/";
+    private static final String ROOT_URL = "https://rickandmortyapi.com/api/";
 
-    /**
-     * Get Retrofit Instance
-     */
     private static Retrofit getRetrofitInstance() {
         return new Retrofit.Builder()
                 .baseUrl(ROOT_URL)
@@ -20,11 +17,6 @@ public class RetroClient {
                 .build();
     }
 
-    /**
-     * Get API Service
-     *
-     * @return API Service
-     */
     public static ApiService getApiService() {
         return getRetrofitInstance().create(ApiService.class);
     }
