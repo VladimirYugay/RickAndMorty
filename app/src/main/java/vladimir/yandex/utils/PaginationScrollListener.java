@@ -2,6 +2,7 @@ package vladimir.yandex.utils;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 
 public abstract class PaginationScrollListener extends RecyclerView.OnScrollListener {
@@ -17,12 +18,12 @@ public abstract class PaginationScrollListener extends RecyclerView.OnScrollList
         super.onScrolled(recyclerView, dx, dy);
 
 
-        int visibleItemCount = layoutManager.getChildCount();
+        int visibleItemCount = layoutManager.getChildCount() * 2;
         int totalItemCount = layoutManager.getItemCount();
         int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
         if (!isLoading() && !isLastPage()) {
-            if ((visibleItemCount * 2 + firstVisibleItemPosition) >= totalItemCount
+            if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                     && firstVisibleItemPosition >= 0) {
                 loadMoreItems();
             }

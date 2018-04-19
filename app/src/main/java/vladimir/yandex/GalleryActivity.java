@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class GalleryActivity extends AppCompatActivity{
     private boolean isLastPage = false;
     private int TOTAL_PAGES = 5;
     private int currentPage = 1;
-
+    private String NEXT_PAGE = null;
 
 
     @Override
@@ -75,6 +76,7 @@ public class GalleryActivity extends AppCompatActivity{
             @Override
             public void onResponse(Call<Characters> call, Response<Characters> response) {
                 isLastPage = false;
+                isLoading = false;
                 mAdapter.addAll(fetchResults(response));
             }
 
@@ -90,6 +92,7 @@ public class GalleryActivity extends AppCompatActivity{
             @Override
             public void onResponse(Call<Characters> call, Response<Characters> response) {
                 isLastPage = false;
+                isLoading = false;
                 mAdapter.addAll(fetchResults(response));
             }
 
