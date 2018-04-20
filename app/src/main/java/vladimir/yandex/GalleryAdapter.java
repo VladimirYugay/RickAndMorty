@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
@@ -21,9 +22,11 @@ import vladimir.yandex.entity.Result;
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private List<Result> mCharacters;
-
     public final int REGULAR_ITEM = 0;
     public final int LOADING_ITEM = 1;
+
+    public boolean INTERNET_ERROR = false;
+    private boolean DATA_ERROR = false;
 
 
     public GalleryAdapter(Context context){
@@ -48,7 +51,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return (position == mCharacters.size()) ? LOADING_ITEM : REGULAR_ITEM;
+        if(position == mCharacters.size() || mCharacters.size() == 0){
+            return LOADING_ITEM;
+        }else {
+            return REGULAR_ITEM;
+        }
     }
 
     @Override
@@ -71,14 +78,21 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 break;
             case LOADING_ITEM:
                 LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
-                loadingViewHolder.mProgress.setIndeterminate(true);
+                if(INTERNET_ERROR){
+                    loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
+                    loadingViewHolder.mProgress.setVisibility(View.GONE);
+                }else {
+                    loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
+                    loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
+                }
+
                 break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return mCharacters.size() == 0 ? 0 : mCharacters.size() + 1;
+        return mCharacters.size() == 0 ? 1 : mCharacters.size() + 1;
     }
 
 
@@ -99,6 +113,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /*
+        Вспомогательные функции для работы с ошибками
+   _________________________________________________________________________________________________
+    */
+
+    /*
         Вьюхолдеры
    _________________________________________________________________________________________________
     */
@@ -112,10 +131,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class LoadingViewHolder extends RecyclerView.ViewHolder {
         ProgressBar mProgress;
+        LinearLayout mErrorLayouyt;
         public LoadingViewHolder(View itemView) {
             super(itemView);
-            mProgress = itemView.findViewById(R.id.progress_bar);
-
+            mProgress = itemView.findViewById(R.id.loadmore_progress);
+            mErrorLayouyt = itemView.findViewById(R.id.loadmore_errorlayout);
         }
     }
 }
