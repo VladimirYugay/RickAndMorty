@@ -66,6 +66,20 @@ public class GalleryActivity extends AppCompatActivity{
             }
         });
 
+
+        mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup(){
+            @Override
+            public int getSpanSize(int position) {
+                if(mAdapter.getItemViewType(position) == mAdapter.REGULAR_ITEM){
+                    return 1;
+                }else if(mAdapter.getItemViewType(position) == mAdapter.LOADING_ITEM){
+                    return 2;
+                }else{
+                    return -1;
+                }
+            }
+        });
+
         mService = CharactersApi.getApiService();
 
         loadFirstPage();

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -20,14 +21,12 @@ import vladimir.yandex.entity.Result;
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private List<Result> mCharacters;
-    private Context mContext;
 
-    private static final int REGULAR_ITEM = 0;
-    private static final int LOADING_ITEM = 1;
+    public final int REGULAR_ITEM = 0;
+    public final int LOADING_ITEM = 1;
 
 
     public GalleryAdapter(Context context){
-        this.mContext = context;
         mCharacters = new ArrayList<>();
     }
 
@@ -41,7 +40,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             View view = inflater.inflate(R.layout.gallery_item, parent, false);
             viewHolder = new RegularViewHolder(view);
         }else if(viewType == LOADING_ITEM){
-            View view = inflater.inflate(R.layout.gallery_item, parent, false);
+            View view = inflater.inflate(R.layout.gallery_item_loading, parent, false);
             viewHolder = new LoadingViewHolder(view);
         }
         return viewHolder;
@@ -49,7 +48,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return (position == mCharacters.size() - 1) ? LOADING_ITEM : REGULAR_ITEM;
+        return (position == mCharacters.size()) ? LOADING_ITEM : REGULAR_ITEM;
     }
 
     @Override
@@ -71,19 +70,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 });
                 break;
             case LOADING_ITEM:
-                LoadingViewHolder loadingVH = (LoadingViewHolder) holder;
+                LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+                loadingViewHolder.mProgress.setIndeterminate(true);
                 break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return mCharacters.size();
+        return mCharacters.size() == 0 ? 0 : mCharacters.size() + 1;
     }
 
 
     /*
-        Функции для  бесконечной подгрузки
+        Вспомогательные функции
    _________________________________________________________________________________________________
     */
 
@@ -103,7 +103,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
    _________________________________________________________________________________________________
     */
     static class RegularViewHolder extends RecyclerView.ViewHolder{
-
         ImageView mImage;
         RegularViewHolder(View itemView) {
             super(itemView);
@@ -112,8 +111,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     class LoadingViewHolder extends RecyclerView.ViewHolder {
+        ProgressBar mProgress;
         public LoadingViewHolder(View itemView) {
             super(itemView);
+            mProgress = itemView.findViewById(R.id.progress_bar);
 
         }
     }
