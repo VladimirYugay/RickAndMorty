@@ -19,8 +19,9 @@ import vladimir.yandex.api.CharactersService;
 import vladimir.yandex.entity.Characters;
 import vladimir.yandex.entity.Result;
 import vladimir.yandex.utils.PaginationScrollListener;
+import vladimir.yandex.utils.RetryCallback;
 
-public class GalleryActivity extends AppCompatActivity{
+public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
     private GalleryAdapter mAdapter;
     GridLayoutManager mLayoutManager;
@@ -36,7 +37,7 @@ public class GalleryActivity extends AppCompatActivity{
         setContentView(R.layout.activity_gallery);
 
         mRecycler = (RecyclerView)findViewById(R.id.recycler);
-        mAdapter = new GalleryAdapter();
+        mAdapter = new GalleryAdapter(this);
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(mLayoutManager);
@@ -135,4 +136,8 @@ public class GalleryActivity extends AppCompatActivity{
     }
 
 
+    @Override
+    public void retryLoad() {
+        loadData();
+    }
 }

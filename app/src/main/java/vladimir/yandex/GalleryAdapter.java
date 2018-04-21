@@ -1,5 +1,6 @@
 package vladimir.yandex;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -7,10 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -18,20 +21,25 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.datatype.Duration;
+
 import vladimir.yandex.entity.Result;
+import vladimir.yandex.utils.RetryCallback;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private List<Result> mCharacters;
-    public final int REGULAR_ITEM = 0;
-    public final int LOADING_ITEM = 1;
+    protected final int REGULAR_ITEM = 0;
+    protected final int LOADING_ITEM = 1;
 
-    public boolean INTERNET_ERROR = false;
-    public boolean DATA_ERROR = false;
+    protected boolean INTERNET_ERROR = false;
+    protected boolean DATA_ERROR = false;
 
+    private RetryCallback mCallback;
 
-    public GalleryAdapter() {
+    public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
+        mCallback = (RetryCallback) context;
     }
 
 
@@ -82,9 +90,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 if(INTERNET_ERROR){
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
                     loadingViewHolder.mProgress.setVisibility(View.GONE);
+                    loadingViewHolder.mErrorText.setText("Проверьте ваше интернет соединение");
                 }else if(DATA_ERROR){
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
                     loadingViewHolder.mProgress.setVisibility(View.GONE);
+                    loadingViewHolder.mErrorText.setText("Вы загрузили все картинки");
                 } else {
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
                     loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
@@ -132,13 +142,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    class LoadingViewHolder extends RecyclerView.ViewHolder {
+    class LoadingViewHolder extends RecyclerView.ViewHolder{
         ProgressBar mProgress;
         LinearLayout mErrorLayouyt;
+        TextView mErrorText;
+        ImageButton mRetryButton;
         public LoadingViewHolder(View itemView) {
             super(itemView);
             mProgress = itemView.findViewById(R.id.loadmore_progress);
             mErrorLayouyt = itemView.findViewById(R.id.loadmore_errorlayout);
+            mErrorText = itemView.findViewById(R.id.loadmore_errortxt);
+            mRetryButton = itemView.findViewById(R.id.loadmore_retry);
+
+            mRetryButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCallback.retryLoad();
+                }
+            });
         }
     }
 }
