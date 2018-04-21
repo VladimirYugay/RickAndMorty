@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -26,10 +27,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public final int LOADING_ITEM = 1;
 
     public boolean INTERNET_ERROR = false;
-    private boolean DATA_ERROR = false;
+    public boolean DATA_ERROR = false;
 
 
-    public GalleryAdapter(Context context){
+    public GalleryAdapter() {
         mCharacters = new ArrayList<>();
     }
 
@@ -51,7 +52,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        if(position == mCharacters.size() || mCharacters.size() == 0){
+        if(position == mCharacters.size()){
             return LOADING_ITEM;
         }else {
             return REGULAR_ITEM;
@@ -81,18 +82,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 if(INTERNET_ERROR){
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
                     loadingViewHolder.mProgress.setVisibility(View.GONE);
-                }else {
+                }else if(DATA_ERROR){
+                    loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
+                    loadingViewHolder.mProgress.setVisibility(View.GONE);
+                } else {
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
                     loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
                 }
-
                 break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return mCharacters.size() == 0 ? 1 : mCharacters.size() + 1;
+        return mCharacters.size() + 1;
     }
 
 

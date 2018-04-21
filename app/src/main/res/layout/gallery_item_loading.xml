@@ -9,8 +9,7 @@
         android:id="@+id/loadmore_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:layout_gravity="center" />
 
     <LinearLayout
         android:id="@+id/loadmore_errorlayout"

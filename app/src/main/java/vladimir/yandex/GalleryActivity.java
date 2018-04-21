@@ -28,15 +28,7 @@ public class GalleryActivity extends AppCompatActivity{
     private CharactersService mService;
 
     private boolean isLoading = false;
-    private boolean isLastPage = false;
-    private int TOTAL_PAGES = 2;
-    private int currentPage = 1;
     private String PAGE = "1";
-
-
-    private final int SUCCESS = 0;
-    private final int INTERNET_ERROR = -1;
-    private final int DATA_ERROR = -2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +36,7 @@ public class GalleryActivity extends AppCompatActivity{
         setContentView(R.layout.activity_gallery);
 
         mRecycler = (RecyclerView)findViewById(R.id.recycler);
-        mAdapter = new GalleryAdapter(this);
+        mAdapter = new GalleryAdapter();
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(mLayoutManager);
@@ -53,18 +45,7 @@ public class GalleryActivity extends AppCompatActivity{
             @Override
             protected void loadMoreItems() {
                 isLoading = true;
-                currentPage++;
                 loadData();
-            }
-
-            @Override
-            public int getTotalPageCount() {
-                return TOTAL_PAGES;
-            }
-
-            @Override
-            public boolean isLastPage() {
-                return isLastPage;
             }
 
             @Override
@@ -97,12 +78,16 @@ public class GalleryActivity extends AppCompatActivity{
     */
 
     private void loadData(){
-        if(isNetworkConnected()){
+        if(!isNetworkConnected()){
+            mAdapter.INTERNET_ERROR = true;
+        }else if(!isNextPageExists()){
+            mAdapter.DATA_ERROR = true;
+        } else {
             mAdapter.INTERNET_ERROR = false;
+            mAdapter.DATA_ERROR = false;
             callCharacters().enqueue(new Callback<Characters>() {
                 @Override
                 public void onResponse(Call<Characters> call, Response<Characters> response) {
-                    isLastPage = false;
                     isLoading = false;
                     PAGE = fetchPageNumber(response);
                     mAdapter.addAll(fetchResults(response));
@@ -113,8 +98,6 @@ public class GalleryActivity extends AppCompatActivity{
                     t.printStackTrace();
                 }
             });
-        }else{
-            mAdapter.INTERNET_ERROR = true;
         }
     }
 
@@ -126,6 +109,8 @@ public class GalleryActivity extends AppCompatActivity{
         return response.body().getResults();
     }
 
+    //Из-за особенностей данного API разумнее брать номер следующей страницы из объекта INFO, тогда не нужно будет проверять общее число страниц
+    //ИЗ-за особенностей Retrofit2 (нельзя менять baseURL) я достаю номер страницы regexp и отправляю в качестве параметра в запрос
     private String fetchPageNumber(Response<Characters> response){
         String url = response.body().getInfo().getNext();
         if(url != null && !url.isEmpty()){
