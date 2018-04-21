@@ -8,6 +8,6 @@ import vladimir.yandex.entity.Characters;
 
 public interface CharactersService {
 
-    @GET("character/?")
-    Call<Characters> getCharactersJSON(@Query("page") int number);
+    @GET("character/")
+    Call<Characters> getCharactersJSON(@Query("page") String pageNumber );
 }

@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import retrofit2.Call;
@@ -29,6 +31,8 @@ public class GalleryActivity extends AppCompatActivity{
     private boolean isLastPage = false;
     private int TOTAL_PAGES = 2;
     private int currentPage = 1;
+    private String PAGE = "1";
+
 
     private final int SUCCESS = 0;
     private final int INTERNET_ERROR = -1;
@@ -84,8 +88,6 @@ public class GalleryActivity extends AppCompatActivity{
         });
 
         mService = CharactersApi.getApiService();
-
-        loadData();
     }
 
 
@@ -102,6 +104,7 @@ public class GalleryActivity extends AppCompatActivity{
                 public void onResponse(Call<Characters> call, Response<Characters> response) {
                     isLastPage = false;
                     isLoading = false;
+                    PAGE = fetchPageNumber(response);
                     mAdapter.addAll(fetchResults(response));
                 }
 
@@ -116,11 +119,19 @@ public class GalleryActivity extends AppCompatActivity{
     }
 
     private Call<Characters> callCharacters(){
-        return mService.getCharactersJSON(currentPage);
+        return mService.getCharactersJSON(PAGE);
     }
 
     private List<Result> fetchResults(Response<Characters> response){
         return response.body().getResults();
+    }
+
+    private String fetchPageNumber(Response<Characters> response){
+        String url = response.body().getInfo().getNext();
+        if(url != null && !url.isEmpty()){
+             return url.replaceAll("\\D+","");
+        }
+        return null;
     }
 
     /*
@@ -132,6 +143,10 @@ public class GalleryActivity extends AppCompatActivity{
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
+    }
+
+    private boolean isNextPageExists(){
+        return PAGE != null;
     }
 
 
