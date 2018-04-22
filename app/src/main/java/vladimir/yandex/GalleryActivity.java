@@ -3,10 +3,12 @@ package vladimir.yandex;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -14,7 +16,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import vladimir.yandex.api.CharactersApi;
 import vladimir.yandex.api.CharactersService;
-import vladimir.yandex.entity.Characters;
+import vladimir.yandex.entity.Reponse;
 import vladimir.yandex.entity.Result;
 import vladimir.yandex.utils.PaginationScrollListener;
 import vladimir.yandex.utils.RetryCallback;
@@ -39,6 +41,12 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(mLayoutManager);
+
+        if(savedInstanceState != null){
+            PAGE = savedInstanceState.getString(Constants.PAGE);
+            mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
+        }
+
         mRecycler.addOnScrollListener(new PaginationScrollListener(mLayoutManager){
 
             @Override
@@ -76,6 +84,12 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         handleError(getErrorCode());
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(Constants.PAGE, PAGE);
+        outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
+    }
 
     /*
      Методы для работы с данными
@@ -83,16 +97,16 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
     */
 
     private void loadData(){
-        callCharacters().enqueue(new Callback<Characters>() {
+        callCharacters().enqueue(new Callback<Reponse>() {
             @Override
-            public void onResponse(Call<Characters> call, Response<Characters> response) {
+            public void onResponse(Call<Reponse> call, Response<Reponse> response) {
                 isLoading = false;
                 PAGE = fetchPageNumber(response);
                 mAdapter.addAll(fetchResults(response));
             }
 
             @Override
-            public void onFailure(Call<Characters> call, Throwable t) {
+            public void onFailure(Call<Reponse> call, Throwable t) {
                 handleError(Constants.SERVER_ERROR);
                 t.printStackTrace();
             }
@@ -106,17 +120,17 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         loadData();
     }
 
-    private Call<Characters> callCharacters(){
+    private Call<Reponse> callCharacters(){
         return mService.getCharactersJSON(PAGE);
     }
 
-    private List<Result> fetchResults(Response<Characters> response){
+    private List<Result> fetchResults(Response<Reponse> response){
         return response.body().getResults();
     }
 
     //Из-за особенностей данного API разумнее брать номер следующей страницы из объекта INFO, тогда не нужно будет проверять общее число страниц
     //ИЗ-за особенностей Retrofit2 (нельзя менять baseURL) я достаю номер страницы regexp и отправляю в качестве параметра в запрос
-    private String fetchPageNumber(Response<Characters> response){
+    private String fetchPageNumber(Response<Reponse> response){
         String url = response.body().getInfo().getNext();
         if(url != null && !url.isEmpty()){
              return url.replaceAll("\\D+","");

@@ -104,6 +104,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 break;
         }
     }
+    
 
     @Override
     public int getItemCount() {
@@ -112,7 +113,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     /*
-        Вспомогательные функции
+        Вспомогательные функции для загрузки данных в адаптер
    _________________________________________________________________________________________________
     */
 
@@ -127,10 +128,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+
     /*
-        Вспомогательные функции для работы с ошибками
+        Вспомогательные функции для сохранения данных после поворота экрана
    _________________________________________________________________________________________________
     */
+    public List<Result> getGalleryItems(){
+        return mCharacters;
+    }
+
+    public void setGalleryImtes(List<Result> results){
+        mCharacters.addAll(results);
+    }
 
     /*
         Вьюхолдеры

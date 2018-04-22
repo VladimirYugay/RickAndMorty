@@ -1,38 +1,16 @@
 package vladimir.yandex.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Info {
+public class Info implements Parcelable {
 
-    @SerializedName("count")
-    @Expose
-    private Integer count;
-    @SerializedName("pages")
-    @Expose
-    private Integer pages;
     @SerializedName("next")
     @Expose
     private String next;
-    @SerializedName("prev")
-    @Expose
-    private String prev;
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
-
-    public Integer getPages() {
-        return pages;
-    }
-
-    public void setPages(Integer pages) {
-        this.pages = pages;
-    }
 
     public String getNext() {
         return next;
@@ -42,12 +20,32 @@ public class Info {
         this.next = next;
     }
 
-    public String getPrev() {
-        return prev;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public void setPrev(String prev) {
-        this.prev = prev;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.next);
     }
 
+    public Info() {
+    }
+
+    protected Info(Parcel in) {
+        this.next = in.readString();
+    }
+
+    public static final Parcelable.Creator<Info> CREATOR = new Parcelable.Creator<Info>() {
+        @Override
+        public Info createFromParcel(Parcel source) {
+            return new Info(source);
+        }
+
+        @Override
+        public Info[] newArray(int size) {
+            return new Info[size];
+        }
+    };
 }

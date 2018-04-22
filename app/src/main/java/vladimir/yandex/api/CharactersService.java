@@ -2,12 +2,11 @@ package vladimir.yandex.api;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
-import vladimir.yandex.entity.Characters;
+import vladimir.yandex.entity.Reponse;
 
 public interface CharactersService {
 
     @GET("character/")
-    Call<Characters> getCharactersJSON(@Query("page") String pageNumber );
+    Call<Reponse> getCharactersJSON(@Query("page") String pageNumber );
 }
