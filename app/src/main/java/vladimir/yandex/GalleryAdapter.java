@@ -37,6 +37,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private RetryCallback mCallback;
 
+    protected String ERROR_MESSAGE = "";
+
     public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
         mCallback = (RetryCallback) context;
@@ -60,11 +62,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        if(position == mCharacters.size()){
-            return LOADING_ITEM;
-        }else {
-            return REGULAR_ITEM;
-        }
+        return position == mCharacters.size() ? LOADING_ITEM : REGULAR_ITEM;
     }
 
     @Override
@@ -88,14 +86,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case LOADING_ITEM:
                 LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
                 if(INTERNET_ERROR){
+                    DATA_ERROR = false;
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
                     loadingViewHolder.mProgress.setVisibility(View.GONE);
-                    loadingViewHolder.mErrorText.setText("Проверьте ваше интернет соединение");
+                    loadingViewHolder.mErrorText.setText(ERROR_MESSAGE);
                 }else if(DATA_ERROR){
+                    INTERNET_ERROR = false;
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
                     loadingViewHolder.mProgress.setVisibility(View.GONE);
-                    loadingViewHolder.mErrorText.setText("Вы загрузили все картинки");
+                    loadingViewHolder.mErrorText.setText(ERROR_MESSAGE);
                 } else {
+                    DATA_ERROR = false;
+                    INTERNET_ERROR = false;
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
                     loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
                 }
