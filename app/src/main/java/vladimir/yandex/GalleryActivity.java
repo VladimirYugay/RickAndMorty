@@ -48,6 +48,7 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         }
 
 
+
         mRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             private int itemCount = 20;
             @Override
@@ -94,8 +95,8 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        mRecyclerState = mLayoutManager.onSaveInstanceState();
-        outState.putInt(Constants.GALLERY_STATE, mLayoutManager.findFirstCompletelyVisibleItemPosition());
+        mRecyclerState = mRecycler.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(Constants.GALLERY_STATE, mRecyclerState);
 
         outState.putString(Constants.PAGE, PAGE);
         outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
