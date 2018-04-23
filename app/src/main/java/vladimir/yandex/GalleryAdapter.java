@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,13 +105,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 break;
         }
     }
-    
+
 
     @Override
     public int getItemCount() {
         return mCharacters.size() + 1;
     }
-
 
     /*
         Вспомогательные функции для загрузки данных в адаптер
@@ -135,10 +135,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     */
     public List<Result> getGalleryItems(){
         return mCharacters;
-    }
-
-    public void setGalleryImtes(List<Result> results){
-        mCharacters.addAll(results);
     }
 
     /*

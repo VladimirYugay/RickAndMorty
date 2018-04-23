@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ import vladimir.yandex.api.CharactersApi;
 import vladimir.yandex.api.CharactersService;
 import vladimir.yandex.entity.Reponse;
 import vladimir.yandex.entity.Result;
-import vladimir.yandex.utils.PaginationScrollListener;
 import vladimir.yandex.utils.RetryCallback;
 
 public class GalleryActivity extends AppCompatActivity implements RetryCallback{
@@ -26,9 +26,8 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
     private GalleryAdapter mAdapter;
     GridLayoutManager mLayoutManager;
     RecyclerView mRecycler;
+    Parcelable mRecyclerState = null;
     private CharactersService mService;
-
-    private boolean isLoading = false;
     private String PAGE = "1";
 
     @Override
@@ -42,29 +41,32 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(mLayoutManager);
 
+
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
             mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
         }
 
-        mRecycler.addOnScrollListener(new PaginationScrollListener(mLayoutManager){
 
+        mRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int itemCount = 20;
             @Override
-            protected void loadMoreItems() {
-                isLoading = true;
-                if(getErrorCode() > 0){
-                    loadData();
-                }else{
-                    handleError(getErrorCode());
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int visibleItemCount = mLayoutManager.getChildCount();
+                int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
+                if(dy > 0){
+                    if((visibleItemCount + pastVisibleItems) >= itemCount){
+                        if(getErrorCode() > 0){
+                            loadData();
+                            itemCount += 20;
+                        }else{
+                            handleError(getErrorCode());
+                        }
+                    }
                 }
             }
-
-            @Override
-            public boolean isLoading() {
-                return isLoading;
-            }
         });
-
 
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup(){
             @Override
@@ -81,15 +83,26 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
         mService = CharactersApi.getApiService();
 
-        handleError(getErrorCode());
+        //Только при первом запуске сессии т.к. при смене экрана снрва вызывется данный метод из-за пересоздания активити
+        if(getErrorCode() > 0 && PAGE.equals("1")){
+            loadData();
+        }else{
+            handleError(getErrorCode());
+        }
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+        mRecyclerState = mLayoutManager.onSaveInstanceState();
+        outState.putInt(Constants.GALLERY_STATE, mLayoutManager.findFirstCompletelyVisibleItemPosition());
+
         outState.putString(Constants.PAGE, PAGE);
         outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
+        super.onSaveInstanceState(outState);
     }
+
+
 
     /*
      Методы для работы с данными
@@ -100,7 +113,6 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         callCharacters().enqueue(new Callback<Reponse>() {
             @Override
             public void onResponse(Call<Reponse> call, Response<Reponse> response) {
-                isLoading = false;
                 PAGE = fetchPageNumber(response);
                 mAdapter.addAll(fetchResults(response));
             }
@@ -117,7 +129,11 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
     @Override
     public void retryLoad() {
-        loadData();
+        if(getErrorCode() > 0){
+            loadData();
+        }else{
+            handleError(getErrorCode());
+        }
     }
 
     private Call<Reponse> callCharacters(){
