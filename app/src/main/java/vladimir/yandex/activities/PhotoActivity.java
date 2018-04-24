@@ -1,10 +1,12 @@
-package vladimir.yandex;
+package vladimir.yandex.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+
+import vladimir.yandex.R;
 
 public class PhotoActivity extends AppCompatActivity {
 

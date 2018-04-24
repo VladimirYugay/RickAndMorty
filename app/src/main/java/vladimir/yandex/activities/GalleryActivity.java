@@ -1,4 +1,4 @@
-package vladimir.yandex;
+package vladimir.yandex.activities;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +14,14 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import vladimir.yandex.Constants;
+import vladimir.yandex.adapters.GalleryAdapter;
+import vladimir.yandex.R;
 import vladimir.yandex.api.CharactersApi;
 import vladimir.yandex.api.CharactersService;
 import vladimir.yandex.entity.Reponse;
 import vladimir.yandex.entity.Result;
-import vladimir.yandex.utils.RetryCallback;
+import vladimir.yandex.interfaces.RetryCallback;
 
 public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
@@ -27,6 +29,7 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
     GridLayoutManager mLayoutManager;
     RecyclerView mRecycler;
     Parcelable mRecyclerState = null;
+    private boolean isLoading = false;
     private CharactersService mService;
     private String PAGE = "1";
 
@@ -50,17 +53,15 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
 
         mRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            private int itemCount = 20;
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int visibleItemCount = mLayoutManager.getChildCount();
                 int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
                 if(dy > 0){
-                    if((visibleItemCount + pastVisibleItems) >= itemCount){
+                    if((visibleItemCount + pastVisibleItems) >= mLayoutManager.getItemCount() && !isLoading){
                         if(getErrorCode() > 0){
                             loadData();
-                            itemCount += 20;
                         }else{
                             handleError(getErrorCode());
                         }
@@ -111,9 +112,11 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
     */
 
     private void loadData(){
+        isLoading = true;
         callCharacters().enqueue(new Callback<Reponse>() {
             @Override
             public void onResponse(Call<Reponse> call, Response<Reponse> response) {
+                isLoading = false;
                 PAGE = fetchPageNumber(response);
                 mAdapter.addAll(fetchResults(response));
             }
@@ -126,7 +129,6 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
         });
 
     }
-
 
     @Override
     public void retryLoad() {

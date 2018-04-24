@@ -1,11 +1,9 @@
-package vladimir.yandex;
+package vladimir.yandex.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -22,23 +19,23 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.datatype.Duration;
-
+import vladimir.yandex.R;
+import vladimir.yandex.activities.PhotoActivity;
 import vladimir.yandex.entity.Result;
-import vladimir.yandex.utils.RetryCallback;
+import vladimir.yandex.interfaces.RetryCallback;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private List<Result> mCharacters;
-    protected final int REGULAR_ITEM = 0;
-    protected final int LOADING_ITEM = 1;
+    public final int REGULAR_ITEM = 0;
+    public final int LOADING_ITEM = 1;
 
-    protected boolean INTERNET_ERROR = false;
-    protected boolean DATA_ERROR = false;
+    public boolean INTERNET_ERROR = false;
+    public boolean DATA_ERROR = false;
 
     private RetryCallback mCallback;
 
-    protected String ERROR_MESSAGE = "";
+    public String ERROR_MESSAGE = "";
 
     public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
