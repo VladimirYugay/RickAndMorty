@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vladimir.yandex.R;
+import vladimir.yandex.activities.GalleryActivity;
 import vladimir.yandex.activities.PhotoActivity;
 import vladimir.yandex.entity.Result;
-import vladimir.yandex.interfaces.RetryCallback;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
@@ -33,13 +33,16 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public boolean INTERNET_ERROR = false;
     public boolean DATA_ERROR = false;
 
-    private RetryCallback mCallback;
+
+    private GalleryActivity mContext;
 
     public String ERROR_MESSAGE = "";
 
+
+    //Адаптер - часть вью, пока живет вью, пусть живет адаптер, поэтому передаю контекст StrongReference
     public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
-        mCallback = (RetryCallback) context;
+        mContext = (GalleryActivity) context;
     }
 
 
@@ -160,7 +163,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mRetryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mCallback.retryLoad();
+                    mContext.loadData();
                 }
             });
         }

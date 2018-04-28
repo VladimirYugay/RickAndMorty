@@ -9,12 +9,21 @@ import com.google.gson.annotations.SerializedName;
 
 public class Result implements Parcelable {
 
+    @SerializedName("id")
+    @Expose
+    private int id;
     @SerializedName("name")
     @Expose
     private String name;
     @SerializedName("image")
     @Expose
     private String image;
+
+    public Result(int id, String name, String image){
+        this.id = id;
+        this.name = name;
+        this.image = image;
+    }
 
     public String getName() {
         return name;
@@ -34,6 +43,15 @@ public class Result implements Parcelable {
         this.image = image;
     }
 
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -41,6 +59,7 @@ public class Result implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
         dest.writeString(this.name);
         dest.writeString(this.image);
     }
@@ -49,6 +68,7 @@ public class Result implements Parcelable {
     }
 
     protected Result(Parcel in) {
+        this.id = in.readInt();
         this.name = in.readString();
         this.image = in.readString();
     }

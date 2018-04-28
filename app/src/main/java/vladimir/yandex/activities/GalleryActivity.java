@@ -21,15 +21,14 @@ import vladimir.yandex.api.CharactersApi;
 import vladimir.yandex.api.CharactersService;
 import vladimir.yandex.entity.Reponse;
 import vladimir.yandex.entity.Result;
-import vladimir.yandex.interfaces.RetryCallback;
 
-public class GalleryActivity extends AppCompatActivity implements RetryCallback{
+public class GalleryActivity extends AppCompatActivity{
 
     private GalleryAdapter mAdapter;
     GridLayoutManager mLayoutManager;
     RecyclerView mRecycler;
-    Parcelable mRecyclerState = null;
     private boolean isLoading = false;
+    private Call<Reponse> mCall;
     private CharactersService mService;
     private String PAGE = "1";
 
@@ -40,18 +39,17 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
         mRecycler = (RecyclerView)findViewById(R.id.recycler);
         mAdapter = new GalleryAdapter(this);
-        mLayoutManager = new GridLayoutManager(this, 2);
-        mRecycler.setAdapter(mAdapter);
-        mRecycler.setLayoutManager(mLayoutManager);
-
 
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
             mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
         }
 
+        mLayoutManager = new GridLayoutManager(this, 2);
+        mRecycler.setAdapter(mAdapter);
+        mRecycler.setLayoutManager(mLayoutManager);
 
-
+        //пагинация
         mRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -60,16 +58,13 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
                 int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
                 if(dy > 0){
                     if((visibleItemCount + pastVisibleItems) >= mLayoutManager.getItemCount() && !isLoading){
-                        if(getErrorCode() > 0){
-                            loadData();
-                        }else{
-                            handleError(getErrorCode());
-                        }
+                        loadData();
                     }
                 }
             }
         });
 
+        //чтобы вью с прогресс бар была во всю ширину экрана
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup(){
             @Override
             public int getSpanSize(int position) {
@@ -85,69 +80,65 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
         mService = CharactersApi.getApiService();
 
-        //Только при первом запуске сессии т.к. при смене экрана снрва вызывется данный метод из-за пересоздания активити
-        if(getErrorCode() > 0 && PAGE.equals("1")){
+        //Только при первой странице т.к. при смене экрана снова вызывется данный метод из-за пересоздания активити
+        if(PAGE.equals("1")){
             loadData();
-        }else{
-            handleError(getErrorCode());
         }
     }
 
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        mRecyclerState = mRecycler.getLayoutManager().onSaveInstanceState();
-        outState.putParcelable(Constants.GALLERY_STATE, mRecyclerState);
-
         outState.putString(Constants.PAGE, PAGE);
         outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
         super.onSaveInstanceState(outState);
     }
 
-
+    //отменяем вызов, чтобы не текло
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCall.cancel();
+    }
 
     /*
      Методы для работы с данными
    _________________________________________________________________________________________________
     */
 
-    private void loadData(){
-        isLoading = true;
-        callCharacters().enqueue(new Callback<Reponse>() {
-            @Override
-            public void onResponse(Call<Reponse> call, Response<Reponse> response) {
-                isLoading = false;
-                PAGE = fetchPageNumber(response);
-                mAdapter.addAll(fetchResults(response));
-            }
-
-            @Override
-            public void onFailure(Call<Reponse> call, Throwable t) {
-                handleError(Constants.SERVER_ERROR);
-                t.printStackTrace();
-            }
-        });
-
-    }
-
-    @Override
-    public void retryLoad() {
+    public void loadData(){
         if(getErrorCode() > 0){
-            loadData();
+            mCall = mService.getCharactersJSON(PAGE);
+            isLoading = true;
+            mCall.enqueue(new Callback<Reponse>() {
+                @Override
+                public void onResponse(Call<Reponse> call, Response<Reponse> response) {
+                    isLoading = false;
+                    if(response.isSuccessful()){
+                        PAGE = fetchPageNumber(response);
+                        mAdapter.addAll(fetchResults(response));
+                    }else {
+                        handleError(Constants.SERVER_ERROR);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Reponse> call, Throwable t) {
+                    handleError(Constants.SERVER_ERROR);
+                    t.printStackTrace();
+                }
+            });
         }else{
             handleError(getErrorCode());
         }
     }
 
-    private Call<Reponse> callCharacters(){
-        return mService.getCharactersJSON(PAGE);
-    }
 
     private List<Result> fetchResults(Response<Reponse> response){
         return response.body().getResults();
     }
 
-    //Из-за особенностей данного API разумнее брать номер следующей страницы из объекта INFO, тогда не нужно будет проверять общее число страниц
+    //Из-за особенностей данного API разумнее брать номер следующей страницы из объекта INFO, тогда не нужно будет проверять общее число страниц и увеличивать текущую вручную
     //ИЗ-за особенностей Retrofit2 (нельзя менять baseURL) я достаю номер страницы regexp и отправляю в качестве параметра в запрос
     private String fetchPageNumber(Response<Reponse> response){
         String url = response.body().getInfo().getNext();
@@ -192,7 +183,6 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
                 mAdapter.INTERNET_ERROR = false;
         }
     }
-
 
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
