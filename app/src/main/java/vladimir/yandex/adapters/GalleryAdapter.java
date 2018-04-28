@@ -39,7 +39,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public String ERROR_MESSAGE = "";
 
 
-    //Адаптер - часть вью, пока живет вью, пусть живет адаптер, поэтому передаю контекст StrongReference
+    //Адаптер - часть вью, пока живет активити, пусть живет адаптер, поэтому передаю контекст StrongReference
     public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
         mContext = (GalleryActivity) context;
@@ -86,6 +86,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 break;
             case LOADING_ITEM:
                 LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+                ((LoadingViewHolder) holder).mRetryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mContext.loadData();
+                    }
+                });
                 if(INTERNET_ERROR){
                     DATA_ERROR = false;
                     loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
@@ -148,7 +154,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    class LoadingViewHolder extends RecyclerView.ViewHolder{
+    static class LoadingViewHolder extends RecyclerView.ViewHolder{
         ProgressBar mProgress;
         LinearLayout mErrorLayouyt;
         TextView mErrorText;
@@ -159,13 +165,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mErrorLayouyt = itemView.findViewById(R.id.loadmore_errorlayout);
             mErrorText = itemView.findViewById(R.id.loadmore_errortxt);
             mRetryButton = itemView.findViewById(R.id.loadmore_retry);
-
-            mRetryButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mContext.loadData();
-                }
-            });
         }
     }
 }
