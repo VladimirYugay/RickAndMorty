@@ -1,17 +1,18 @@
 package vladimir.yandex.activities;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.Cipher;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,11 +22,13 @@ import vladimir.yandex.adapters.GalleryAdapter;
 import vladimir.yandex.R;
 import vladimir.yandex.api.CharactersApi;
 import vladimir.yandex.api.CharactersService;
+import vladimir.yandex.database.DatabaseHandler;
 import vladimir.yandex.entity.Reponse;
 import vladimir.yandex.entity.Result;
 
 public class GalleryActivity extends AppCompatActivity{
 
+    //Извините
     private GalleryAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
     private RecyclerView mRecycler;
@@ -33,7 +36,9 @@ public class GalleryActivity extends AppCompatActivity{
     private Call<Reponse> mCall;
     private CharactersService mService;
     private String PAGE = "1";
-    private Parcelable mRecyclerState;
+    private DatabaseHandler mDatabaseHandler;
+    private SaveToDatabase mSaveToDabatase;
+    private RetrieveFromDatabase mRetrieveFromDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +47,11 @@ public class GalleryActivity extends AppCompatActivity{
 
         mRecycler = (RecyclerView)findViewById(R.id.recycler);
         mAdapter = new GalleryAdapter(this);
+        mDatabaseHandler = new DatabaseHandler(this);
 
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
             mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
-            mRecyclerState = savedInstanceState.getParcelable(Constants.RECYCLER_STATE);
         }
 
         mLayoutManager = new GridLayoutManager(this, 2);
@@ -84,39 +89,38 @@ public class GalleryActivity extends AppCompatActivity{
 
         mService = CharactersApi.getApiService();
 
-        //Только при первой странице т.к. при смене экрана снова вызывется данный метод из-за пересоздания активити
-        if(PAGE.equals("1")){
-            loadData();
+        //Идем смотреть кэш
+        //Если там ничего нету, то он сам запустит метод, который грузит из сети
+        if(savedInstanceState == null){
+            mRetrieveFromDatabase = new RetrieveFromDatabase(GalleryActivity.this);
+            mRetrieveFromDatabase.execute();
         }
+
     }
 
-    //Кладем следующую страницу, данные, состояние ресайлера.
+    //Кладем следующую страницу.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(Constants.PAGE, PAGE);
         outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
-        mRecyclerState = mLayoutManager.onSaveInstanceState();
-        outState.putParcelable(Constants.RECYCLER_STATE, mRecyclerState);
         super.onSaveInstanceState(outState);
     }
 
-    //отменяем вызов, чтобы не текло
+    //отменяем вызовы, чтобы не текло
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if(mCall != null){
             mCall.cancel();
         }
-    }
-
-    //После поворота экрана, нужно восстановить recycler. Знаю, что так делать надо, но не могу исправить, что он все равно вверх прыгает
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(mRecyclerState != null){
-            mLayoutManager.onRestoreInstanceState(mRecyclerState);
+        if(mSaveToDabatase != null){
+            mSaveToDabatase.cancel(true);
+        }
+        if(mRetrieveFromDatabase != null){
+            mRetrieveFromDatabase.cancel(true);
         }
     }
+
 
     /*
      Методы для работы с данными
@@ -124,6 +128,7 @@ public class GalleryActivity extends AppCompatActivity{
     */
 
     public void loadData(){
+        //смотрим код ошибки, если он больше 0 (все коды ошибок <  0), то выполняем, иначе что-то делаем с ошибкой
         if(getErrorCode() > 0){
             mCall = mService.getCharactersJSON(PAGE);
             isLoading = true;
@@ -132,7 +137,11 @@ public class GalleryActivity extends AppCompatActivity{
                 public void onResponse(Call<Reponse> call, Response<Reponse> response) {
                     isLoading = false;
                     if(response.isSuccessful()){
+                        //берем следующую страницу из апи
                         PAGE = fetchPageNumber(response);
+                        //кэшируем в случае успешного запроса
+                        mSaveToDabatase = new SaveToDatabase(GalleryActivity.this, fetchResults(response));
+                        mSaveToDabatase.execute();
                         mAdapter.addAll(fetchResults(response));
                     }else {
                         handleError(Constants.SERVER_ERROR);
@@ -147,6 +156,69 @@ public class GalleryActivity extends AppCompatActivity{
             });
         }else{
             handleError(getErrorCode());
+        }
+    }
+
+    //кэшируем в бд
+    private static class SaveToDatabase extends AsyncTask<Void, Void, Void>{
+
+        private final WeakReference<GalleryActivity> mReference;
+        private final List<Result> mCharacters;
+
+        private SaveToDatabase(GalleryActivity activity, List<Result> responses) {
+            mReference = new WeakReference<>(activity);
+            mCharacters = responses;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            for(Result character : mCharacters){
+                if(isCancelled()){
+                    break;
+                }
+                if(mReference.get() != null){
+                    mReference.get().mDatabaseHandler.addCharacter(character);
+                }
+            }
+            return null;
+        }
+    }
+
+    //берем из бд
+    private static class RetrieveFromDatabase extends AsyncTask<Void, Void, List<Result>>{
+
+        private final WeakReference<GalleryActivity> mReference;
+
+        private RetrieveFromDatabase(GalleryActivity activity) {
+            mReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if(mReference.get() != null){
+                mReference.get().isLoading = true;
+            }
+        }
+
+        @Override
+        protected List<Result> doInBackground(Void... voids) {
+            if(mReference.get() != null && !isCancelled()){
+                return new ArrayList<>(mReference.get().mDatabaseHandler.getAllCharacters());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Result> results) {
+            if(mReference.get() != null){
+                mReference.get().isLoading = false;
+                if(results != null && results.size() != 0){
+                    mReference.get().PAGE = String.valueOf(results.size() / 20 + 1);
+                    mReference.get().mAdapter.addAll(results);
+                }else{
+                    mReference.get().loadData();
+                }
+            }
         }
     }
 

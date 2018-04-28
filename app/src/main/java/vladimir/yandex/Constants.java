@@ -11,5 +11,5 @@ public class Constants {
 
     public final static String RECYCLER_STATE = "RECYCLER_STATE";
 
-
+    public final static String FIRST_RUN = "FIRST_RUN";
 }
