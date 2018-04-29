@@ -1,17 +1,15 @@
 package vladimir.yandex.activities;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.Cipher;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,8 +38,8 @@ public class GalleryActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        mRecycler = (RecyclerView)findViewById(R.id.recycler);
-        mAdapter = new GalleryAdapter(this);
+        mRecycler = findViewById(R.id.recycler);
+        mAdapter = new GalleryAdapter();
 
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
@@ -58,10 +56,12 @@ public class GalleryActivity extends AppCompatActivity{
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                int totalItemCount = mLayoutManager.getItemCount();
                 int visibleItemCount = mLayoutManager.getChildCount();
-                int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
+                int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
                 if(dy > 0){
-                    if((visibleItemCount + pastVisibleItems) >= mLayoutManager.getItemCount() && !isLoading){
+                    if((visibleItemCount + firstVisibleItemPosition) >= totalItemCount && !isLoading
+                            && totalItemCount >= 20){
                         loadData();
                     }
                 }
@@ -109,7 +109,6 @@ public class GalleryActivity extends AppCompatActivity{
         }
     }
 
-    //После поворота экрана, нужно восстановить recycler. Знаю, что так делать надо, но не могу исправить, что он все равно вверх прыгает
     @Override
     protected void onResume() {
         super.onResume();
@@ -124,90 +123,38 @@ public class GalleryActivity extends AppCompatActivity{
     */
 
     public void loadData(){
-        if(getErrorCode() > 0){
             mCall = mService.getCharactersJSON(PAGE);
             isLoading = true;
             mCall.enqueue(new Callback<Reponse>() {
                 @Override
-                public void onResponse(Call<Reponse> call, Response<Reponse> response) {
+                public void onResponse(@NonNull Call<Reponse> call, @NonNull Response<Reponse> response) {
                     isLoading = false;
                     if(response.isSuccessful()){
                         PAGE = fetchPageNumber(response);
                         mAdapter.addAll(fetchResults(response));
-                    }else {
-                        handleError(Constants.SERVER_ERROR);
                     }
                 }
 
                 @Override
-                public void onFailure(Call<Reponse> call, Throwable t) {
-                    handleError(Constants.SERVER_ERROR);
+                public void onFailure(@NonNull Call<Reponse> call, @NonNull Throwable t) {
                     t.printStackTrace();
                 }
             });
-        }else{
-            handleError(getErrorCode());
-        }
     }
 
 
+
     private List<Result> fetchResults(Response<Reponse> response){
-        return response.body().getResults();
+        return response.body() != null ? response.body().getResults() : null;
     }
 
     //Из-за особенностей данного API разумнее брать номер следующей страницы из объекта INFO, тогда не нужно будет проверять общее число страниц и увеличивать текущую вручную
     //ИЗ-за особенностей Retrofit2 (нельзя менять baseURL) я достаю номер страницы regexp и отправляю в качестве параметра в запрос
     private String fetchPageNumber(Response<Reponse> response){
-        String url = response.body().getInfo().getNext();
+        String url = response.body() != null ? response.body().getInfo().getNext() : null;
         if(url != null && !url.isEmpty()){
              return url.replaceAll("\\D+","");
         }
         return null;
     }
-
-    /*
-     Методы для работы с возможными ошибками
-   _________________________________________________________________________________________________
-    */
-    int getErrorCode(){
-        if(!isNetworkConnected()){
-            return Constants.INTERNET_ERROR;
-        }else if(!isNextPageExists()){
-            return Constants.PAGE_LIMIT_ERROR;
-        }else
-        return Constants.OK;
-    }
-
-    void handleError(int errorCode){
-        switch (errorCode){
-            case Constants.INTERNET_ERROR:
-                mAdapter.ERROR_MESSAGE = getString(R.string.INTERNET_ERROR_MESSAGE);
-                mAdapter.INTERNET_ERROR = true;
-                mAdapter.DATA_ERROR = false;
-                break;
-            case Constants.PAGE_LIMIT_ERROR:
-                mAdapter.ERROR_MESSAGE = getString(R.string.EOF_ERROR_MESSAGE);
-                mAdapter.DATA_ERROR = true;
-                mAdapter.INTERNET_ERROR = false;
-                break;
-            case Constants.SERVER_ERROR:
-                mAdapter.ERROR_MESSAGE = getString(R.string.SERVER_ERROR_MESSAGE);
-                mAdapter.DATA_ERROR = true;
-                mAdapter.INTERNET_ERROR = false;
-                break;
-            default:
-                mAdapter.DATA_ERROR = false;
-                mAdapter.INTERNET_ERROR = false;
-        }
-    }
-
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null;
-    }
-
-    private boolean isNextPageExists(){
-        return PAGE != null && !PAGE.equals("");
-    }
-
 }

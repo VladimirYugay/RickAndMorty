@@ -29,26 +29,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<Result> mCharacters;
     public final int REGULAR_ITEM = 0;
     public final int LOADING_ITEM = 1;
+    public boolean ERROR = false;
 
-    public boolean INTERNET_ERROR = false;
-    public boolean DATA_ERROR = false;
-
-
-    private GalleryActivity mContext;
-
-    public String ERROR_MESSAGE = "";
-
-
-    //Адаптер - часть вью, пока живет активити, пусть живет адаптер, поэтому передаю контекст StrongReference
-    public GalleryAdapter(Context context) {
+    public GalleryAdapter() {
         mCharacters = new ArrayList<>();
-        mContext = (GalleryActivity) context;
     }
-
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder = null;
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if(viewType == REGULAR_ITEM){
@@ -67,9 +56,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        switch (getItemViewType(position)){
-            case REGULAR_ITEM:
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+        if (getItemViewType(position) == REGULAR_ITEM){
                 final RegularViewHolder regularViewHolder = (RegularViewHolder) holder;
                 Glide.with(regularViewHolder.mImage.getContext())
                         .load(mCharacters.get(position).getImage())
@@ -80,35 +68,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     public void onClick(View v) {
                         Intent intent = new Intent(v.getContext(), PhotoActivity.class);
                         intent.putExtra("URL", mCharacters.get(position).getImage());
+                        intent.putExtra("NAME", mCharacters.get(position).getName());
                         v.getContext().startActivity(intent);
                     }
                 });
-                break;
-            case LOADING_ITEM:
-                LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
-                ((LoadingViewHolder) holder).mRetryButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mContext.loadData();
-                    }
-                });
-                if(INTERNET_ERROR){
-                    DATA_ERROR = false;
-                    loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
-                    loadingViewHolder.mProgress.setVisibility(View.GONE);
-                    loadingViewHolder.mErrorText.setText(ERROR_MESSAGE);
-                }else if(DATA_ERROR){
-                    INTERNET_ERROR = false;
-                    loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
-                    loadingViewHolder.mProgress.setVisibility(View.GONE);
-                    loadingViewHolder.mErrorText.setText(ERROR_MESSAGE);
-                } else {
-                    DATA_ERROR = false;
-                    INTERNET_ERROR = false;
-                    loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
-                    loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
-                }
-                break;
         }
     }
 
@@ -129,7 +92,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void addAll(List<Result> results){
-        for(Result result: results){
+        for(Result result : results){
             add(result);
         }
     }

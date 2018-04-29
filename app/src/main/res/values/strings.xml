@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Рик и Морти</string>
-    <string name="INTERNET_ERROR_MESSAGE">Проверьте свое интернет соединение</string>
-    <string name="EOF_ERROR_MESSAGE">Вы загрузили все страницы</string>
-    <string name="SERVER_ERROR_MESSAGE">Произошла ошибка на сервере</string>
+    <string name="ERROR_MESSAGE">При загрузке данных произошла ошибка</string>
+    <string name="ERROR_HANDLE_MESSAGE">Нажмите, чтобы перезагрузить</string>
 </resources>

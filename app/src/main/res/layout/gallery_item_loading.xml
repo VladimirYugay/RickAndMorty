@@ -51,13 +51,13 @@
                 style="@style/Base.TextAppearance.AppCompat.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Что-то пошло не так"/>
+                tools:text="@string/ERROR_MESSAGE"/>
 
             <TextView
                 style="@style/Base.TextAppearance.AppCompat.Caption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Нажмите чтобы перезагрузить"/>
+                android:text="@string/ERROR_HANDLE_MESSAGE"/>
 
         </LinearLayout>
 
