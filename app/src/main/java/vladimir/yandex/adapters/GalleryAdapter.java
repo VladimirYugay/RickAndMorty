@@ -19,6 +19,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.ArrayList;
 import java.util.List;
 
+import vladimir.yandex.Constants;
 import vladimir.yandex.R;
 import vladimir.yandex.activities.GalleryActivity;
 import vladimir.yandex.activities.PhotoActivity;
@@ -63,8 +64,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(v.getContext(), PhotoActivity.class);
-                        intent.putExtra("URL", mCharacters.get(position).getImage());
-                        intent.putExtra("NAME", mCharacters.get(position).getName());
+                        intent.putExtra(Constants.URL, mCharacters.get(position).getImage());
+                        intent.putExtra(Constants.NAME, mCharacters.get(position).getName());
                         v.getContext().startActivity(intent);
                     }
                 });
@@ -97,7 +98,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
    _________________________________________________________________________________________________
     */
 
-    public void remove(Result result){
+    private void remove(Result result){
         int position = mCharacters.indexOf(result);
         if(position > -1){
             mCharacters.remove(result);

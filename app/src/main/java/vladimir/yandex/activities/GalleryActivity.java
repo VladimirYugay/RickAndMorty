@@ -39,10 +39,13 @@ public class GalleryActivity extends AppCompatActivity{
 
         mRecycler = findViewById(R.id.recycler);
         mAdapter = new GalleryAdapter();
+        mService = CharactersApi.getApiService();
 
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
             mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
+        }else{
+            loadData();
         }
 
         mLayoutManager = new GridLayoutManager(this, 2);
@@ -79,13 +82,6 @@ public class GalleryActivity extends AppCompatActivity{
                 }
             }
         });
-
-        mService = CharactersApi.getApiService();
-
-        //Только при первой странице т.к. при смене экрана снова вызывется данный метод из-за пересоздания активити
-        if(PAGE.equals("1")){
-            loadData();
-        }
     }
 
     //Кладем следующую страницу, данные, состояние ресайлера.
