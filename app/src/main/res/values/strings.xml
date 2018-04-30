@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Рик и Морти</string>
     <string name="ERROR_MESSAGE">При загрузке данных произошла ошибка</string>
-    <string name="ERROR_HANDLE_MESSAGE">Нажмите, чтобы перезагрузить</string>
+    <string name="ERROR_HANDLE_MESSAGE">Потяните вниз, чтобы перезагрузить</string>
 </resources>

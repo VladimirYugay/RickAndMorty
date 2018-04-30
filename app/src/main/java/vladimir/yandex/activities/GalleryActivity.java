@@ -31,7 +31,6 @@ public class GalleryActivity extends AppCompatActivity{
     private Call<Reponse> mCall;
     private CharactersService mService;
     private String PAGE = "1";
-    private Parcelable mRecyclerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,6 @@ public class GalleryActivity extends AppCompatActivity{
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
             mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
-            mRecyclerState = savedInstanceState.getParcelable(Constants.RECYCLER_STATE);
         }
 
         mLayoutManager = new GridLayoutManager(this, 2);
@@ -95,8 +93,6 @@ public class GalleryActivity extends AppCompatActivity{
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(Constants.PAGE, PAGE);
         outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
-        mRecyclerState = mLayoutManager.onSaveInstanceState();
-        outState.putParcelable(Constants.RECYCLER_STATE, mRecyclerState);
         super.onSaveInstanceState(outState);
     }
 
@@ -109,13 +105,6 @@ public class GalleryActivity extends AppCompatActivity{
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(mRecyclerState != null){
-            mLayoutManager.onRestoreInstanceState(mRecyclerState);
-        }
-    }
 
     /*
      Методы для работы с данными
@@ -132,15 +121,20 @@ public class GalleryActivity extends AppCompatActivity{
                     if(response.isSuccessful()){
                         PAGE = fetchPageNumber(response);
                         mAdapter.addAll(fetchResults(response));
+                        mAdapter.removeErrorFooter();
+                    }else{
+                        mAdapter.addErrorFooter();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<Reponse> call, @NonNull Throwable t) {
                     t.printStackTrace();
+                    mAdapter.addErrorFooter();
                 }
             });
     }
+
 
 
 

@@ -27,6 +27,9 @@ public class CharactersApi {
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
                 .cache(new Cache(Utils.getPath(), 15 * 1024 * 1024))
+                .connectTimeout(5, TimeUnit.MINUTES)
+                .writeTimeout(5, TimeUnit.MINUTES)
+                .readTimeout(5, TimeUnit.MINUTES)
                 .addInterceptor(new Interceptor() {
                     @Override
                     public Response intercept(Chain chain) throws IOException {

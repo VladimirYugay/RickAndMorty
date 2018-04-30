@@ -50,10 +50,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return viewHolder;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return position == mCharacters.size() ? LOADING_ITEM : REGULAR_ITEM;
-    }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
@@ -72,6 +68,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         v.getContext().startActivity(intent);
                     }
                 });
+        }else{
+            final LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            if(ERROR){
+                loadingViewHolder.mErrorLayouyt.setVisibility(View.VISIBLE);
+                loadingViewHolder.mProgress.setVisibility(View.GONE);
+            }else{
+                loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
+                ;loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -81,10 +86,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return mCharacters.size() + 1;
     }
 
+
+    @Override
+    public int getItemViewType(int position) {
+        return position == mCharacters.size() ? LOADING_ITEM : REGULAR_ITEM;
+    }
+
     /*
         Вспомогательные функции для загрузки данных в адаптер
    _________________________________________________________________________________________________
     */
+
+    public void remove(Result result){
+        int position = mCharacters.indexOf(result);
+        if(position > -1){
+            mCharacters.remove(result);
+            notifyItemRemoved(position);
+        }
+    }
 
     public void add(Result result){
         mCharacters.add(result);
@@ -95,6 +114,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         for(Result result : results){
             add(result);
         }
+    }
+
+
+    public void addErrorFooter(){
+        ERROR = true;
+        remove(mCharacters.get(mCharacters.size() - 1));
+        add(new Result());
+    }
+
+    public void removeErrorFooter(){
+        ERROR = false;
+        remove(mCharacters.get(mCharacters.size() - 1));
+        add(new Result());
     }
 
     /*
@@ -120,14 +152,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     static class LoadingViewHolder extends RecyclerView.ViewHolder{
         ProgressBar mProgress;
         LinearLayout mErrorLayouyt;
-        TextView mErrorText;
-        ImageButton mRetryButton;
         public LoadingViewHolder(View itemView) {
             super(itemView);
             mProgress = itemView.findViewById(R.id.loadmore_progress);
-            mErrorLayouyt = itemView.findViewById(R.id.loadmore_errorlayout);
-            mErrorText = itemView.findViewById(R.id.loadmore_errortxt);
-            mRetryButton = itemView.findViewById(R.id.loadmore_retry);
+            mErrorLayouyt = itemView.findViewById(R.id.loadmore_error_layout);
         }
     }
 }

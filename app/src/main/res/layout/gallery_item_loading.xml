@@ -12,55 +12,31 @@
         android:layout_gravity="center" />
 
     <LinearLayout
-        android:id="@+id/loadmore_errorlayout"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:orientation="horizontal"
-        android:paddingBottom="@dimen/activity_margin"
-        android:paddingTop="@dimen/activity_margin"
-        android:visibility="gone"
-        tools:visibility="invisible">
+        android:id="@+id/loadmore_error_layout"
+        android:orientation="vertical"
+        android:visibility="invisible">
 
-        <ImageButton
-            android:id="@+id/loadmore_retry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/activity_margin_content"
-            android:layout_marginStart="@dimen/activity_margin_content"
-            android:background="@drawable/rety_selector"
-            android:padding="@dimen/activity_margin_half"
-            android:src="@drawable/ic_refresh_black_24dp"
-            android:tintMode="src_in"
-            tools:targetApi="lollipop"/>
-
-        <LinearLayout
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/activity_margin_content"
-            android:layout_marginLeft="@dimen/activity_margin"
-            android:layout_marginRight="@dimen/activity_margin_content"
-            android:layout_marginStart="@dimen/activity_margin"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:text="@string/ERROR_MESSAGE"
+            android:textSize="16sp"
+            android:padding="4dp"
+            android:textAlignment="center"/>
 
-            <TextView
-                android:id="@+id/loadmore_errortxt"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="@string/ERROR_MESSAGE"/>
-
-            <TextView
-                style="@style/Base.TextAppearance.AppCompat.Caption"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/ERROR_HANDLE_MESSAGE"/>
-
-        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ERROR_HANDLE_MESSAGE"
+            android:textSize="12sp"
+            android:padding="4dp"
+            android:textAlignment="center"/>
 
     </LinearLayout>
+
+
+
 
 </FrameLayout>
