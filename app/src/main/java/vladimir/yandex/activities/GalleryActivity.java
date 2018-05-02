@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -31,11 +34,14 @@ public class GalleryActivity extends AppCompatActivity{
     private Call<Reponse> mCall;
     private CharactersService mService;
     private String PAGE = "1";
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+        setUpToolbar();
 
         mRecycler = findViewById(R.id.recycler);
         mAdapter = new GalleryAdapter();
@@ -100,6 +106,13 @@ public class GalleryActivity extends AppCompatActivity{
             mCall.cancel();
         }
     }
+
+    private void setUpToolbar(){
+        mToolbar = findViewById(R.id.toolbar);
+        mToolbar.setTitle(getString(R.string.app_name));
+        mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
+    }
+
 
 
     /*

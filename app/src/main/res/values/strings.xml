@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Рик и Морти</string>
-    <string name="ERROR_MESSAGE">При загрузке данных произошла ошибка</string>
-    <string name="ERROR_HANDLE_MESSAGE">Потяните вниз, чтобы перезагрузить</string>
-    <string name="SHARE_WITH_IMAGELINK">Поделитесь ссылкой на изображение</string>
+    <string name="app_name">Rick and Morty</string>
+    <string name="ERROR_MESSAGE">Error occurred while loading data</string>
+    <string name="ERROR_HANDLE_MESSAGE">Swipe down to reload</string>
+    <string name="SHARE_WITH_IMAGELINK">Share with image link</string>
 </resources>
