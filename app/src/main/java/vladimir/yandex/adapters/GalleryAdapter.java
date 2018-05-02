@@ -31,6 +31,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public final int REGULAR_ITEM = 0;
     public final int LOADING_ITEM = 1;
     public boolean ERROR = false;
+    public boolean isFooterAdded = false;
 
     public GalleryAdapter() {
         mCharacters = new ArrayList<>();
@@ -76,7 +77,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 loadingViewHolder.mProgress.setVisibility(View.GONE);
             }else{
                 loadingViewHolder.mErrorLayouyt.setVisibility(View.GONE);
-                ;loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
+                loadingViewHolder.mProgress.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -84,28 +85,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return mCharacters.size() + 1;
+        return mCharacters.size();
     }
 
 
     @Override
     public int getItemViewType(int position) {
-        return position == mCharacters.size() ? LOADING_ITEM : REGULAR_ITEM;
+        return (position == mCharacters.size() - 1 && isFooterAdded) ? LOADING_ITEM : REGULAR_ITEM;
     }
 
     /*
         Вспомогательные функции для загрузки данных в адаптер
    _________________________________________________________________________________________________
     */
-
-    private void remove(Result result){
-        int position = mCharacters.indexOf(result);
-        if(position > -1){
-            mCharacters.remove(result);
-            notifyItemRemoved(position);
-        }
-    }
-
     public void add(Result result){
         mCharacters.add(result);
         notifyItemInserted(mCharacters.size() - 1);
@@ -115,20 +107,33 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         for(Result result : results){
             add(result);
         }
+        //Говорим, что все норм, ошибок нет, говорим, что можно добавить вью типа футер, добавляе пустой объект.
+        ERROR = false;
+        isFooterAdded = true;
+        add(new Result());
     }
 
+    public void removeFooter(){
+        //Говорим, что нельяз добавлять вью типа футер, удаляем последний элемент, перерисовываем.
+        int position = mCharacters.size() - 1;
+        if(position > 0){
+            isFooterAdded = false;
+            mCharacters.remove(mCharacters.size() - 1);
+            notifyItemRemoved(mCharacters.size() - 1);
+        }
+    }
 
     public void addErrorFooter(){
-        ERROR = true;
-        remove(mCharacters.get(mCharacters.size() - 1));
-        add(new Result());
+        //Если ошибки до этого не было, говорим что есть, убираем футер, говорим, что ошибка и что можно добавить вью типа футер
+        //добавляем элемент
+        if(!ERROR){
+            removeFooter();
+            ERROR = true;
+            isFooterAdded = true;
+            add(new Result());
+        }
     }
 
-    public void removeErrorFooter(){
-        ERROR = false;
-        remove(mCharacters.get(mCharacters.size() - 1));
-        add(new Result());
-    }
 
     /*
         Вспомогательные функции для сохранения данных после поворота экрана

@@ -62,7 +62,7 @@ public class GalleryActivity extends AppCompatActivity{
                 int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
                 if(dy > 0){
                     if((visibleItemCount + firstVisibleItemPosition) >= totalItemCount && !isLoading
-                            && totalItemCount >= 20){
+                            && totalItemCount >= mAdapter.getItemCount()){
                         loadData();
                     }
                 }
@@ -115,9 +115,9 @@ public class GalleryActivity extends AppCompatActivity{
                 public void onResponse(@NonNull Call<Reponse> call, @NonNull Response<Reponse> response) {
                     isLoading = false;
                     if(response.isSuccessful()){
+                        mAdapter.removeFooter();
                         PAGE = fetchPageNumber(response);
                         mAdapter.addAll(fetchResults(response));
-                        mAdapter.removeErrorFooter();
                     }else{
                         mAdapter.addErrorFooter();
                     }
