@@ -8,7 +8,7 @@
 
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/photoToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/black"
@@ -21,10 +21,10 @@
         android:layout_centerVertical="true"/>
 
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/photoImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/photoToolbar"
         android:paddingBottom="?attr/actionBarSize"/>
 
 </RelativeLayout>

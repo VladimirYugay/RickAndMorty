@@ -1,27 +1,20 @@
 package vladimir.yandex.adapters;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import vladimir.yandex.Constants;
 import vladimir.yandex.R;
-import vladimir.yandex.activities.GalleryActivity;
 import vladimir.yandex.activities.PhotoActivity;
 import vladimir.yandex.entity.Result;
 
@@ -151,7 +144,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ImageView mImage;
         RegularViewHolder(View itemView) {
             super(itemView);
-            mImage = itemView.findViewById(R.id.image);
+            mImage = itemView.findViewById(R.id.photoImage);
         }
     }
 

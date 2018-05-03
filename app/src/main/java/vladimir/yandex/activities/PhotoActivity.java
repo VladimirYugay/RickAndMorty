@@ -2,10 +2,8 @@ package vladimir.yandex.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -17,9 +15,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import vladimir.yandex.Constants;
 import vladimir.yandex.R;
@@ -38,7 +33,7 @@ public class PhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo);
 
 
-        mImage = findViewById(R.id.image);
+        mImage = findViewById(R.id.photoImage);
         mUrl = getIntent().getStringExtra(Constants.URL);
         mName = getIntent().getStringExtra(Constants.NAME);
 
@@ -80,7 +75,7 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private void setUpToolbar(){
-        mToolbar = findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.photoToolbar);
         mToolbar.setTitle(mName);
         mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
         mToolbar.inflateMenu(R.menu.photo_menu);
