@@ -1,11 +1,14 @@
 package vladimir.yandex.adapters;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -15,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import vladimir.yandex.Constants;
 import vladimir.yandex.R;
+import vladimir.yandex.RetryCallback;
+import vladimir.yandex.activities.GalleryActivity;
 import vladimir.yandex.activities.PhotoActivity;
 import vladimir.yandex.entity.Result;
 
@@ -25,9 +30,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public final int LOADING_ITEM = 1;
     public boolean ERROR = false;
     public boolean isFooterAdded = false;
+    RetryCallback mCallback;
 
-    public GalleryAdapter() {
+    public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
+        mCallback = (RetryCallback) context;
     }
 
     @NonNull
@@ -138,9 +145,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     /*
         Вьюхолдеры
+        В пдане Java, нестатичные классы внутри класса ведут к утечке памяти
+        Однако, в данном случае, они будут использоваться только с данным
+        адаптером, поэтому что они статик, что нет, разницы нет.
    _________________________________________________________________________________________________
     */
-    static class RegularViewHolder extends RecyclerView.ViewHolder{
+    class RegularViewHolder extends RecyclerView.ViewHolder{
         ImageView mImage;
         RegularViewHolder(View itemView) {
             super(itemView);
@@ -148,13 +158,21 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    static class LoadingViewHolder extends RecyclerView.ViewHolder{
+    class LoadingViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ProgressBar mProgress;
         LinearLayout mErrorLayouyt;
+        ImageButton mRetryButton;
         public LoadingViewHolder(View itemView) {
             super(itemView);
             mProgress = itemView.findViewById(R.id.loadmore_progress);
             mErrorLayouyt = itemView.findViewById(R.id.loadmore_error_layout);
+            mRetryButton = itemView.findViewById(R.id.button_retry);
+            mRetryButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            mCallback.retryPageLoad();
         }
     }
 }

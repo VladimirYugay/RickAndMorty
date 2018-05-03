@@ -15,6 +15,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import vladimir.yandex.Constants;
+import vladimir.yandex.RetryCallback;
 import vladimir.yandex.adapters.GalleryAdapter;
 import vladimir.yandex.R;
 import vladimir.yandex.api.CharactersApi;
@@ -22,7 +23,7 @@ import vladimir.yandex.api.CharactersService;
 import vladimir.yandex.entity.Reponse;
 import vladimir.yandex.entity.Result;
 
-public class GalleryActivity extends AppCompatActivity{
+public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
     private GalleryAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
@@ -41,7 +42,7 @@ public class GalleryActivity extends AppCompatActivity{
         setUpToolbar();
 
         mRecycler = findViewById(R.id.recycler);
-        mAdapter = new GalleryAdapter();
+        mAdapter = new GalleryAdapter(GalleryActivity.this);
         mService = CharactersApi.getApiService();
 
         if(savedInstanceState != null){
@@ -156,5 +157,10 @@ public class GalleryActivity extends AppCompatActivity{
              return url.replaceAll("\\D+","");
         }
         return null;
+    }
+
+    @Override
+    public void retryPageLoad() {
+        loadData();
     }
 }
