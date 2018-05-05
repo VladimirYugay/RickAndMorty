@@ -7,19 +7,21 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+
 import java.util.ArrayList;
 import java.util.List;
 import vladimir.yandex.Constants;
 import vladimir.yandex.R;
 import vladimir.yandex.RetryCallback;
-import vladimir.yandex.activities.GalleryActivity;
 import vladimir.yandex.activities.PhotoActivity;
 import vladimir.yandex.entity.Result;
 
@@ -28,9 +30,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<Result> mCharacters;
     public final int REGULAR_ITEM = 0;
     public final int LOADING_ITEM = 1;
-    public boolean ERROR = false;
-    public boolean isFooterAdded = false;
-    RetryCallback mCallback;
+    private boolean ERROR = false;
+    private boolean isFooterAdded = false;
+    private RetryCallback mCallback;
 
     public GalleryAdapter(Context context) {
         mCharacters = new ArrayList<>();
@@ -57,9 +59,23 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if (getItemViewType(position) == REGULAR_ITEM){
                 final RegularViewHolder regularViewHolder = (RegularViewHolder) holder;
+                regularViewHolder.mProgress.setVisibility(View.VISIBLE);
                 Glide.with(regularViewHolder.mImage.getContext())
                         .load(mCharacters.get(position).getImage())
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .listener(new RequestListener<String, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                regularViewHolder.mProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                regularViewHolder.mProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+                        })
                         .into(regularViewHolder.mImage);
                 regularViewHolder.mImage.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -152,9 +168,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     */
     class RegularViewHolder extends RecyclerView.ViewHolder{
         ImageView mImage;
+        ProgressBar mProgress;
         RegularViewHolder(View itemView) {
             super(itemView);
-            mImage = itemView.findViewById(R.id.photoImage);
+            mImage = itemView.findViewById(R.id.itemImage);
+            mProgress = itemView.findViewById(R.id.itemProgress);
         }
     }
 

@@ -2,17 +2,20 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:minHeight="170dp"
+    android:background="@drawable/border">
 
     <ProgressBar
+        android:id="@+id/itemProgress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
 
     <ImageView
-        android:id="@+id/photoImage"
+        android:id="@+id/itemImage"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height   ="wrap_content" />
 
 </RelativeLayout>

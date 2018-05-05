@@ -20,6 +20,7 @@
         android:visibility="visible">
 
         <TextView
+            android:textColor="@color/black"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/ERROR_MESSAGE"
@@ -31,8 +32,8 @@
             android:id="@+id/button_retry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_refresh_green_48dp"
-            android:background="@color/white"
+            android:src="@drawable/ic_refresh_yellow_48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_gravity="center" />
 
     </LinearLayout>

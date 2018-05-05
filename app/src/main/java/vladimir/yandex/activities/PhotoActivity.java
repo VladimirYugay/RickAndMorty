@@ -12,9 +12,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import vladimir.yandex.Constants;
 import vladimir.yandex.R;
@@ -25,6 +29,7 @@ public class PhotoActivity extends AppCompatActivity {
     String mName;
     Toolbar mToolbar;
     ImageView mImage;
+    ProgressBar mProgress;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -34,6 +39,7 @@ public class PhotoActivity extends AppCompatActivity {
 
 
         mImage = findViewById(R.id.photoImage);
+        mProgress = findViewById(R.id.photoProgress);
         mUrl = getIntent().getStringExtra(Constants.URL);
         mName = getIntent().getStringExtra(Constants.NAME);
 
@@ -48,6 +54,19 @@ public class PhotoActivity extends AppCompatActivity {
         Glide.with(this)
                 .load(mUrl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        mProgress.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        mProgress.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
                 .into(mImage);
 
 
@@ -66,6 +85,8 @@ public class PhotoActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
