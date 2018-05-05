@@ -132,7 +132,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void removeFooter(){
         //Говорим, что нельяз добавлять вью типа футер, удаляем последний элемент, перерисовываем.
         int position = mCharacters.size() - 1;
-        if(position > 0){
+        if(position >= 0){
             isFooterAdded = false;
             mCharacters.remove(mCharacters.size() - 1);
             notifyItemRemoved(mCharacters.size() - 1);

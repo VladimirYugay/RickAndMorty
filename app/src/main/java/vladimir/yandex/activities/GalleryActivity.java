@@ -93,9 +93,8 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(Constants.PAGE, PAGE);
         //Когда сохраняем, убираем футер
-        List<Result> listToSave = mAdapter.getGalleryItems();
-        listToSave.remove(listToSave.size() - 1);
-        outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) listToSave);
+        mAdapter.removeFooter();
+        outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
         super.onSaveInstanceState(outState);
     }
 
