@@ -5,7 +5,7 @@ App for viewing characters from Rick and Morty serial
 
 - [x] На стартовом экране отображается лента картинок, разделённая на несколько столбцов. Есть возможность прокрутки.
 - [x] По нажатию на картинку она открывается в новом окне, во весь экран.
-- [x] Ленту картинок приложение получает по сети из https://rickandmortyapi.com/api/character/
+- [x] Ленту картинок приложение получает по сети из https://rickandmortyapi.com/api/character/.
 
 </br>
 

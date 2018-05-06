@@ -47,7 +47,10 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
 
         if(savedInstanceState != null){
             PAGE = savedInstanceState.getString(Constants.PAGE);
-            mAdapter.addAll(savedInstanceState.<Result>getParcelableArrayList(Constants.DATA));
+            //Убираем "футер"
+            List<Result> listToSave = savedInstanceState.getParcelableArrayList(Constants.DATA);
+            listToSave.remove(listToSave.size() - 1);
+            mAdapter.addAll(listToSave);
         }else{
             loadData();
         }
@@ -93,7 +96,6 @@ public class GalleryActivity extends AppCompatActivity implements RetryCallback{
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(Constants.PAGE, PAGE);
         //Когда сохраняем, убираем футер
-        mAdapter.removeFooter();
         outState.putParcelableArrayList(Constants.DATA, (ArrayList<? extends Parcelable>) mAdapter.getGalleryItems());
         super.onSaveInstanceState(outState);
     }
