@@ -9,10 +9,10 @@ App for viewing characters from Rick and Morty serial
 
 </br>
 
-- [x] Комментарии в коде,
-- [x] обработка ошибок,
-- [x] кэширование изображений,
-- [x] кэширование запросов,
+- [x] Комментарии в коде
+- [x] обработка ошибок
+- [x] кэширование изображений
+- [x] кэширование запросов
 
 <a href="gallery"><img src="https://drive.google.com/uc?export=view&id=1phdLXnYCXPhAUzppuQ_bKDVoxWVfPB6Q" align="left" height="30%" width="30%" ></a>
 
