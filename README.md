@@ -1,5 +1,5 @@
 # RickAndMorty
-App for viewing characters from Rick and Morty serial
+Приложение для собеседования в ШМР 2018 в Яндекс
 
 # Apk can be found [here](https://drive.google.com/open?id=1JcCPBvyuvlYJfFaqQ5ytEboDWnwikcNF)
 
